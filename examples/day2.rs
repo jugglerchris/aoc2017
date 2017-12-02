@@ -7,14 +7,30 @@ fn solve(data: &[Vec<u64>]) -> u64 {
         .sum()
 }
 
-/*
-fn solve2(data: &[u8]) -> u64 {
-    let mut sum: u64 = 0;
-    for_circular_opposites(data, |a, b| if a == b { sum += (a - b'0') as u64; });
-    // We've only counted half
-    sum * 2
+fn find_divisible(row: &Vec<u64>) -> u64 {
+    for v in row {
+        for v2 in row {
+            if v == v2 {
+                continue
+            } else if v > v2 {
+                if v % v2 == 0 {
+                    return v / v2
+                }
+            } else {
+                if v2 % v == 0 {
+                    return v2 / v
+                }
+            }
+        }
+    }
+    panic!()
 }
-*/
+
+fn solve2(data: &[Vec<u64>]) -> u64 {
+    data.iter()
+        .map(find_divisible)
+        .sum()
+}
 
 fn main() {
     let input = aoc2017::get_input(2).unwrap();
@@ -24,12 +40,7 @@ fn main() {
 
     println!("Answer part 1: {}", solve(&data));
 
-    /*
-    assert_eq!(solve2(b"1212"), 6);
-    assert_eq!(solve2(b"1221"), 0);
-    assert_eq!(solve2(b"123425"), 4);
-    assert_eq!(solve2(b"12131415"), 4);
+    assert_eq!(solve2(&aoc2017::parse_rows("5 9 2 8\n9 4 7 3\n3 8 6 5\n")), 9);
 
-    println!("Answer part 2: {}", solve2(&input));
-    */
+    println!("Answer part 2: {}", solve2(&data));
 }
