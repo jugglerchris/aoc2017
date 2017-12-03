@@ -1,5 +1,6 @@
 #![feature(conservative_impl_trait)]
 extern crate aoc2017;
+use std::collections::HashMap;
 
 // I solved this in my head originally; this is roughly the algorithm
 // I used.
@@ -77,35 +78,31 @@ fn test_sq_to_co() {
                    (0,2)]);
 }
 
-fn solve2(input: u64) -> u64 {
+// Returns (square_num, val)
+fn solve2(input: u64) -> (u64, u64) {
     // Location 0 is unused; we're just doing 1-based indexing.
     // Filling in locations 1,2 to reduce special cases.
-    let mut memory = vec![0u64, 1];
+    let mut memory: HashMap<(i64,i64),u64> = HashMap::new();
+    memory.insert(square_to_coord(1), 1);
 
-    // Keep track of when the next new corner (when we shoot past
-    // what's already there) is.
-    let mut next_corner = 2;
-    let mut corner_inc = 1;
-    let mut corners_until_longer_side = 2;
-    /*
-    for i in 2..input+1 {
-        // Add the previous adjacent values.
-        let mut sum = memory[i-1];
-        if i == next_corner {
-            // No more adjacent to add, but update the corner tracking.
-            next_corner += corner_inc;
-            if corners_until_longer_side > 0 {
-                corners_until_longer_side -= 1;
-            } else {
-                corners_until_longer_side = 4;
-                corner_inc += 1;
+    let mut i = 2;
+    loop {
+        let coord = square_to_coord(i);
+        let mut sum = 0;
+        for dx in -1..2 {
+            for dy in -1..2 {
+                if let Some(v) = memory.get(&(coord.0 + dx, coord.1 + dy)) {
+                    sum += v;
+                }
             }
-        } else {
-            // 
         }
+        if sum > input {
+            // found!
+            return (i as u64, sum);
+        }
+        memory.insert(coord, sum);
+        i += 1;
     }
-    */
-    0
 }
 
 fn main() {
@@ -118,10 +115,10 @@ fn main() {
 
     println!("Answer part 1: {}", solve(input));
 
-    solve2(5);
-    /*
-    assert_eq!(solve2(&aoc2017::parse_rows("5 9 2 8\n9 4 7 3\n3 8 6 5\n")), 9);
+    assert_eq!(vec![1, 2, 4, 5, 10].into_iter().map(solve2).collect::<Vec<_>>(),
+               vec![(3, 2), (4, 4), (5, 5), (6, 10), (7, 11)]);
+//               vec![1, 1, 2, 4, 5, 10, 11, 23, 25, 26, 54, 57, 59, 122, 133, 142, 147,
+ //                   304, 330, 351, 362, 747, 806]);
 
-    println!("Answer part 2: {}", solve2(&data));
-    */
+    println!("Answer part 2: {:?}", solve2(input).1);
 }
