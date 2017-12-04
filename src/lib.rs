@@ -22,6 +22,14 @@ pub fn parse_rows<T:FromStr+Debug>(data: &str) -> Vec<Vec<T>>
         .collect()
 }
 
+pub fn parse_rows_str(data: &str) -> Vec<Vec<&str>>
+{
+    data.lines()
+        .map(|line| line.split_whitespace()
+                        .collect())
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
