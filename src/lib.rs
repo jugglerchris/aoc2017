@@ -30,6 +30,14 @@ pub fn parse_rows_str(data: &str) -> Vec<Vec<&str>>
         .collect()
 }
 
+pub fn parse_lines<T:FromStr+Debug>(data: &str) -> Vec<T>
+   where <T as FromStr>::Err: Debug
+{
+    data.lines()
+        .map(|s| s.parse().expect("Failed to parse"))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
