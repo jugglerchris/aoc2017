@@ -1,8 +1,37 @@
+extern crate regex;
+#[macro_use] extern crate lazy_static;
+
 use std::fs::File;
 use std::io;
 use std::io::{Read};
 use std::str::FromStr;
 use std::fmt::Debug;
+
+pub use regex::Regex;
+
+#[macro_export]
+macro_rules! regex_parser {
+    ($fname:ident : $typ:ty { $($re_name:ident = $re:expr => |$($cap:ident : $capty:ty),*| $res:expr ),* }) =>
+        {
+            lazy_static! {
+                $(
+                static ref $re_name: $crate::Regex = $crate::Regex::new($re).unwrap();
+                 )*
+            }
+            fn $fname(s: &str) -> $typ {
+                $(
+                    if let Some(cap) = $re_name.captures(s) {
+                        return {
+                            let mut capno = 0;
+                            $(capno += 1; let $cap: $capty = cap[capno].parse().unwrap(); )*
+                            $res
+                        };
+                    }
+                )*
+                panic!("Failed to parse: [[{}]]", s)
+            }
+        }
+}
 
 pub fn get_input(n: u32) -> io::Result<String> {
     let filename = format!("data/{}.txt", n);
