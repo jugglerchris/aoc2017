@@ -12,7 +12,7 @@ struct TowerInfo {
 }
 
 regex_parser!(parse_tinfo: TowerInfo {
-    TOWER = r#"^\s+(\w+) \((\d+)\) -> ([\w, ]*)$"# =>
+    TOWER = r#"^\s*(\w+) \((\d+)\) -> ([\w, ]*)$"# =>
         | name: String, weight: usize, childstring: String|
             TowerInfo {
                 name: name,
@@ -22,7 +22,7 @@ regex_parser!(parse_tinfo: TowerInfo {
                                      .map(String::from)
                                      .collect::<Vec<String>>()
             },
-    TOP_TOWER = r#"^\s+(\w+) \((\d+)\)$"# => | name: String, weight: usize| TowerInfo {
+    TOP_TOWER = r#"^\s*(\w+) \((\d+)\)$"# => | name: String, weight: usize| TowerInfo {
         name: name, weight: weight, children: Vec::new()
     }
 });
@@ -91,8 +91,7 @@ fn main() {
     jptl (61)
     ugml (68) -> gyxo, ebii, jptl
     gyxo (61)
-    cntj (57)
-    "#), "tknk");
+    cntj (57)"#), "tknk");
 
     println!("Answer 1: {}", solve1(&input));
 }
