@@ -90,5 +90,44 @@ fn test_parse() {
                });
 }
 
-fn main () {
+fn solve1(input: &str) -> isize {
+    let data = input.lines()
+                    .map(parse_insn)
+                    .collect::<Vec<_>>();
+    let mut regs: HashMap<&str, isize> = HashMap::new();
+
+    use Comparison::*;
+
+    for insn in &data {
+        let condval: isize = *regs.get(insn.cond_src.as_str()).unwrap_or(&0);
+        let cmpval = insn.cmpval;
+        let test = match insn.cmp {
+            EQ => condval == cmpval,
+            NE => condval != cmpval,
+            LT => condval < cmpval,
+            LE => condval <= cmpval,
+            GT => condval > cmpval,
+            GE => condval >= cmpval,
+        };
+        if test {
+            let &targetval = regs.get(insn.target.as_str()).unwrap_or(&0);
+            let newval =  match insn.op {
+                Operation::Inc => { targetval + insn.adjval },
+                Operation::Dec => { targetval - insn.adjval },
+            };
+            regs.insert(&insn.target, newval);
+        }
+    }
+    *regs.iter().map(|(_,v)| v).max().unwrap()
+}
+
+fn main() {
+    let input = aoc2017::get_input(8).unwrap();
+
+    assert_eq!(solve1(r#"b inc 5 if a > 1
+a inc 1 if b < 5
+c dec -10 if a >= 1
+c inc -20 if c == 10"#), 1);
+
+    println!("Answer 1: {}", solve1(&input));
 }
