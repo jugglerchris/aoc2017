@@ -90,11 +90,12 @@ fn test_parse() {
                });
 }
 
-fn solve1(input: &str) -> isize {
+fn solve1(input: &str) -> (isize, isize) {
     let data = input.lines()
                     .map(parse_insn)
                     .collect::<Vec<_>>();
     let mut regs: HashMap<&str, isize> = HashMap::new();
+    let mut maxval = 0isize;
 
     use Comparison::*;
 
@@ -116,9 +117,12 @@ fn solve1(input: &str) -> isize {
                 Operation::Dec => { targetval - insn.adjval },
             };
             regs.insert(&insn.target, newval);
+            if newval > maxval {
+                maxval = newval;
+            }
         }
     }
-    *regs.iter().map(|(_,v)| v).max().unwrap()
+    (*regs.iter().map(|(_,v)| v).max().unwrap(), maxval)
 }
 
 fn main() {
@@ -127,7 +131,7 @@ fn main() {
     assert_eq!(solve1(r#"b inc 5 if a > 1
 a inc 1 if b < 5
 c dec -10 if a >= 1
-c inc -20 if c == 10"#), 1);
+c inc -20 if c == 10"#), (1, 10));
 
-    println!("Answer 1: {}", solve1(&input));
+    println!("Answer 1, 2: {:?}", solve1(&input));
 }
