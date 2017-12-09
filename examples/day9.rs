@@ -1,10 +1,11 @@
 #![feature(conservative_impl_trait)]
 #[macro_use] extern crate aoc2017;
 
-fn solve1(input: &str) -> usize {
+fn solve(input: &str) -> (usize, usize) {
     let mut cs = input.chars();
     let mut depth = 0;
     let mut score = 0;
+    let mut garbage = 0;
     while let Some(c) = cs.next() {
         match c {
             '{' => { depth += 1; },
@@ -13,7 +14,7 @@ fn solve1(input: &str) -> usize {
                     match cs.next().unwrap() {
                         '>' => { break; },
                         '!' => { cs.next().unwrap(); },
-                        _ => {},
+                        _ => { garbage += 1; },
                     }
                 }
             },
@@ -24,20 +25,28 @@ fn solve1(input: &str) -> usize {
             _ => {},
         }
     }
-    score
+    (score, garbage)
 }
 
 fn main() {
     let input = aoc2017::get_input(9).unwrap();
 
-    assert_eq!(solve1(r"{}"), 1);
-    assert_eq!(solve1(r"{{{}}}"), 6);
-    assert_eq!(solve1(r"{{},{}}"), 5);
-    assert_eq!(solve1(r"{{{},{},{{}}}}"), 16);
-    assert_eq!(solve1(r"{<a>,<a>,<a>,<a>}"), 1);
-    assert_eq!(solve1(r"{{<ab>},{<ab>},{<ab>},{<ab>}}"), 9);
-    assert_eq!(solve1(r"{{<!!>},{<!!>},{<!!>},{<!!>}}"), 9);
-    assert_eq!(solve1(r"{{<a!>},{<a!>},{<a!>},{<ab>}}"), 3);
+    assert_eq!(solve("{}"), (1, 0));
+    assert_eq!(solve("{{{}}}"), (6, 0));
+    assert_eq!(solve("{{},{}}"), (5, 0));
+    assert_eq!(solve("{{{},{},{{}}}}"), (16, 0));
+    assert_eq!(solve("{<a>,<a>,<a>,<a>}"), (1, 4));
+    assert_eq!(solve("{{<ab>},{<ab>},{<ab>},{<ab>}}"), (9, 8));
+    assert_eq!(solve("{{<!!>},{<!!>},{<!!>},{<!!>}}"), (9, 0));
+    assert_eq!(solve("{{<a!>},{<a!>},{<a!>},{<ab>}}"), (3, 17));
 
-    println!("Answer 1: {:?}", solve1(&input));
+    assert_eq!(solve("<>"), (0, 0));
+    assert_eq!(solve("<random characters>"), (0, 17));
+    assert_eq!(solve("<<<<>"), (0, 3));
+    assert_eq!(solve("<{!>}>"), (0, 2));
+    assert_eq!(solve("<!!>"), (0, 0));
+    assert_eq!(solve("<!!!>>"), (0, 0));
+    assert_eq!(solve("<{o\"i!a,<{i<a>"), (0, 10));
+
+    println!("Answer: {:?}", solve(&input));
 }
