@@ -39,7 +39,6 @@ fn solve(size: usize, input: &str) -> usize {
 
 struct Hasher {
     lengths: Vec<usize>,
-    offsets: Vec<usize>,
     cur_positions: Vec<usize>,
     skip: usize,
     cur_pos: usize,
@@ -47,55 +46,24 @@ struct Hasher {
 
 impl Hasher {
     pub fn new(lengths: &[usize]) -> Hasher {
-        let offsets: Vec<usize> = {
-            let mut v = Vec::new();
-            let mut pos = 0;
-            for skip in 0..lengths.len() {
-                v.push(pos);
-                pos += skip + lengths[skip];
-                pos %= 0x100;
-            }
-            v
-        };
-        println!("Original lengths: {:?}", lengths);
         Hasher {
             lengths: lengths.into(),
-            offsets: offsets,
             cur_positions: (0..256).collect(),
             skip: 0,
             cur_pos: 0,
         }
     }
 
-    fn reverse_permute(&self, pos: usize) -> usize
-    {
-        let mut newpos = pos;
-        for i in (0..self.lengths.len()).rev() {
-            let knotstart = (self.cur_pos + self.offsets[i] as usize + self.skip) & 0xff;
-            let knotend = knotstart + (self.lengths[i] as usize);
-            // If out position is before the start of the revesed range,
-            // then move it up by `size` so we don't have to worry about
-            // wrapping anymore.
-            let adjpos = if newpos < knotstart { newpos + 256 } else { newpos };
-            if adjpos >= knotstart && adjpos < knotend {
-                let knot_offset = adjpos - knotstart;
-                newpos = (knotend - knot_offset - 1) & 0xff;
-            }
-        }
-        //println!("rev_permute: {} -> {}", pos, newpos);
-        newpos
-    }
-
     pub fn one_round(&mut self) {
-        let new_positions =
-            (0..256).map(|p| self.cur_positions[self.reverse_permute(p)])
-                    .collect();
-        //println!("{:?} ->", self.cur_positions);
-        //println!("    {:?}", new_positions);
-        self.cur_positions = new_positions;
-        let last = self.lengths.len() - 1;
-        self.cur_pos += self.offsets[last] + self.lengths[last] + self.skip + last;
-        self.skip += self.lengths.len();
+        for &l in &self.lengths {
+            let knotstart = self.cur_pos;
+            let knotend = knotstart + l - 1;
+            for i in 0..l/2 {
+                self.cur_positions.swap((knotstart+i)&0xff, (knotend - i)&0xff);
+            }
+            self.cur_pos += l + self.skip;
+            self.skip += 1;
+        }
     }
 
     pub fn as_hex(&self) -> String {
