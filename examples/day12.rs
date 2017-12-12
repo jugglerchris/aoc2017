@@ -39,7 +39,7 @@ fn find_group(programs: &[HashSet<usize>], start: usize) -> HashSet<usize>
 }
 
 fn solve(input: &str) -> usize {
-    let mut programs: Vec<HashSet<usize>> = Vec::new();;
+    let mut programs: Vec<HashSet<usize>> = Vec::new();
 
     for conn in input.lines()
                      .map(parse_pipes)
@@ -50,6 +50,27 @@ fn solve(input: &str) -> usize {
     let group0 = find_group(&programs, 0);
 
     group0.len()
+}
+
+fn solve2(input: &str) -> usize {
+    let mut programs: Vec<HashSet<usize>> = Vec::new();
+
+    for conn in input.lines()
+                     .map(parse_pipes)
+    {
+        assert_eq!(conn.name, programs.len());
+        programs.push(conn.links);
+    }
+    let mut num_groups = 0;
+    let mut remaining = (0..(programs.len())).collect::<HashSet<_>>();
+    while !remaining.is_empty() {
+        let start = *remaining.iter().next().unwrap();
+        let group = find_group(&programs, start);
+        num_groups += 1;
+        remaining = &remaining - &group;
+    }
+
+    num_groups
 }
 
 fn main() {
@@ -64,4 +85,14 @@ fn main() {
 6 <-> 4, 5"#), 6);
 
     println!("Answer: {:?}", solve(&input));
+
+    assert_eq!(solve2(r#"0 <-> 2
+1 <-> 1
+2 <-> 0, 3, 4
+3 <-> 2, 4
+4 <-> 2, 3, 6
+5 <-> 6
+6 <-> 4, 5"#), 2);
+
+    println!("Answer: {:?}", solve2(&input));
 }
