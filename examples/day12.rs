@@ -22,6 +22,21 @@ regex_parser!(parse_pipes: Connections {
             }
 });
 
+fn find_group(programs: &[HashSet<usize>], start: usize) -> HashSet<usize>
+{
+    let mut group = HashSet::new();
+    let mut to_view = vec![start];
+
+    while let Some(item) = to_view.pop() {
+        group.insert(item);
+        for connected in programs[item].iter() {
+            if !group.contains(connected) {
+                to_view.push(*connected);
+            }
+        }
+    }
+    group
+}
 
 fn solve(input: &str) -> usize {
     let mut programs: Vec<HashSet<usize>> = Vec::new();;
@@ -32,18 +47,8 @@ fn solve(input: &str) -> usize {
         assert_eq!(conn.name, programs.len());
         programs.push(conn.links);
     }
+    let group0 = find_group(&programs, 0);
 
-    let mut group0 = HashSet::new();
-    let mut to_view = vec![0];
-
-    while let Some(item) = to_view.pop() {
-        group0.insert(item);
-        for connected in programs[item].iter() {
-            if !group0.contains(connected) {
-                to_view.push(*connected);
-            }
-        }
-    }
     group0.len()
 }
 
