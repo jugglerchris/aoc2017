@@ -40,13 +40,7 @@ fn solve(size: usize, input: &str) -> usize {
 }
 
 fn solve2(input: &str) -> String {
-    let lengths: Vec<usize> =
-        input.as_bytes()
-             .iter()
-             .chain(&[17, 31, 73, 47, 23])
-             .map(|&x| x as usize)
-             .collect();
-    let mut hasher = Hasher::new(&lengths);
+    let mut hasher = Hasher::new_from_string(input);
     for _ in 0..64 {
         hasher.one_round();
     }

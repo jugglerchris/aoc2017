@@ -75,6 +75,18 @@ pub struct Hasher {
 }
 
 impl Hasher {
+    // Make a hasher from a string
+    pub fn new_from_string(input: &str) -> Hasher {
+        let lengths: Vec<usize> =
+            input.as_bytes()
+                 .iter()
+                 .chain(&[17, 31, 73, 47, 23])
+                 .map(|&x| x as usize)
+                 .collect();
+        Hasher::new(&lengths)
+    }
+
+    // Create a hasher from raw lengths
     pub fn new(lengths: &[usize]) -> Hasher {
         Hasher {
             lengths: lengths.into(),
