@@ -119,6 +119,17 @@ impl Hasher {
         }
         result
     }
+    pub fn bits_set(&self) -> usize {
+        let mut result = 0;
+        for i in 0..16 {
+            let mut b = 0;
+            for j in 0..16 {
+                b ^= self.cur_positions[i*16 + j];
+            }
+            result += b.count_ones() as usize;
+        }
+        result
+    }
 }
 
 #[cfg(test)]
