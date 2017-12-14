@@ -67,6 +67,48 @@ pub fn parse_lines<T:FromStr+Debug>(data: &str) -> Vec<T>
         .collect()
 }
 
+pub struct Hasher {
+    lengths: Vec<usize>,
+    cur_positions: Vec<usize>,
+    skip: usize,
+    cur_pos: usize,
+}
+
+impl Hasher {
+    pub fn new(lengths: &[usize]) -> Hasher {
+        Hasher {
+            lengths: lengths.into(),
+            cur_positions: (0..256).collect(),
+            skip: 0,
+            cur_pos: 0,
+        }
+    }
+
+    pub fn one_round(&mut self) {
+        for &l in &self.lengths {
+            let knotstart = self.cur_pos;
+            let knotend = knotstart + l - 1;
+            for i in 0..l/2 {
+                self.cur_positions.swap((knotstart+i)&0xff, (knotend - i)&0xff);
+            }
+            self.cur_pos += l + self.skip;
+            self.skip += 1;
+        }
+    }
+
+    pub fn as_hex(&self) -> String {
+        let mut result = String::new();
+        for i in 0..16 {
+            let mut b = 0;
+            for j in 0..16 {
+                b ^= self.cur_positions[i*16 + j];
+            }
+            result.push_str(&format!("{:02x}", b));
+        }
+        result
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
