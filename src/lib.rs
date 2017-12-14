@@ -130,6 +130,20 @@ impl Hasher {
         }
         result
     }
+    pub fn into_bool_vec(self) -> Vec<bool> {
+        let mut result = Vec::new();
+        for i in 0..16 {
+            let mut b = 0;
+            for j in 0..16 {
+                b ^= self.cur_positions[i*16 + j];
+            }
+            for bit in 0..8 {
+                result.push((b & 0x80) != 0);
+                b = b << 1;
+            }
+        }
+        result
+    }
 }
 
 #[cfg(test)]
