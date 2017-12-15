@@ -2,25 +2,51 @@
 #[macro_use] extern crate aoc2017;
 #[macro_use] extern crate lazy_static;
 
+fn next(start: u64, gen: u64) -> u64 {
+    let mut result = start * gen;
+    while result > 0x7FFFFFFF {
+        result = (result & 0x7FFFFFFF) + (result >> 31);
+    }
+    if result == 0x7FFFFFFF {
+        0
+    } else {
+        result
+    }
+}
+
 fn solve(start_a: usize, start_b: usize) -> usize {
     let mut result = 0;
     let mut a: u64 = start_a as u64;
     let mut b: u64 = start_b as u64;
     for _ in 0..40_000_000 {
-        a *= 16807;
-        b *= 48271;
-        while a > 0x7FFFFFFF {
-            a = (a & 0x7FFFFFFF) + (a >> 31);
+        a = next(a, 16807);
+        b = next(b, 48271);
+
+        if (a & 0xffff) == (b & 0xffff) {
+           result += 1;
         }
-        while b > 0x7FFFFFFF {
-            b = (b & 0x7FFFFFFF) + (b >> 31);
+    }
+    result
+}
+
+// Calls next until val&mask == 0
+fn next_mask(start: u64, gen: u64, mask: u64) -> u64 {
+    let mut val = start;
+    loop {
+        val = next(val, gen);
+        if (val & mask) == 0 {
+            return val;
         }
-        if a >= 0x7FFFFFFF {
-            println!("a={}", a);
-        }
-        if b >= 0x7FFFFFFF {
-            println!("b={}", b);
-        }
+    }
+}
+
+fn solve2(start_a: usize, start_b: usize) -> usize {
+    let mut result = 0;
+    let mut a: u64 = start_a as u64;
+    let mut b: u64 = start_b as u64;
+    for _ in 0..5_000_000 {
+        a = next_mask(a, 16807, 0x3);
+        b = next_mask(b, 48271, 0x7);
 
         if (a & 0xffff) == (b & 0xffff) {
            result += 1;
@@ -38,4 +64,8 @@ fn main() {
     assert_eq!(solve(65, 8921), 588);
 
     println!("Answer: {:?}", solve(start_a, start_b));
+
+    assert_eq!(solve2(65, 8921), 309);
+
+    println!("Answer: {:?}", solve2(start_a, start_b));
 }
