@@ -23,17 +23,18 @@ fn parse_moves(input: &str) -> Vec<Move> {
          .collect()
 }
 
-fn solve(input: &str, num_dancers: usize) -> String {
+// Return the permutation for a dance (vector of positions after the dance)
+fn get_permutation(moves: &[Move], num_dancers: usize) -> Vec<usize>
+{
     let mut dancers: Vec<usize> = (0..num_dancers).collect();
     // positions is a mapping from dancer to position in dancers
     let mut positions: Vec<usize> = (0..num_dancers).collect();
     let mut offset = 0usize;  // The current first position
-    let moves = parse_moves(input);
 
     for mv in moves
     {
         //println!("({:?}, {:?}) + {:?} =>", dancers, offset, mv);
-        match mv {
+        match *mv {
             Spin(u) => {
                 offset = (offset + num_dancers - u) % num_dancers;
             },
@@ -55,9 +56,23 @@ fn solve(input: &str, num_dancers: usize) -> String {
         }
         //println!("    ({:?}, {:?}) =>", dancers, offset);
     }
-    (offset..num_dancers).chain(0..offset)
-                         .map(|off| (dancers[off] as u8 + b'a') as char)
-                         .collect()
+    (&dancers[offset..num_dancers]).iter()
+                                   .chain(&dancers[0..offset])
+                                   .cloned()
+                                   .collect()
+}
+
+fn solve(input: &str, num_dancers: usize) -> String {
+    let mut dancers: Vec<usize> = (0..num_dancers).collect();
+    // positions is a mapping from dancer to position in dancers
+    let mut positions: Vec<usize> = (0..num_dancers).collect();
+    let mut offset = 0usize;  // The current first position
+    let moves = parse_moves(input);
+
+    let perm = get_permutation(&moves, num_dancers);
+    perm.iter()
+        .map(|off| (*off as u8 + b'a') as char)
+        .collect()
 }
 
 fn main() {
