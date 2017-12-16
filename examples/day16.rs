@@ -23,12 +23,15 @@ fn parse_moves(input: &str) -> Vec<Move> {
          .collect()
 }
 
-// Return the permutation for a dance (vector of positions after the dance)
-fn get_permutation(moves: &[Move], num_dancers: usize) -> Vec<usize>
+// Return the permutations for a dance (vector of positions after the dance)
+// Returns the position permutation and the "renaming" permutation.
+fn get_permutations(moves: &[Move], num_dancers: usize) -> (Vec<usize>, Vec<usize>)
 {
     let mut dancers: Vec<usize> = (0..num_dancers).collect();
     // positions is a mapping from dancer to position in dancers
     let mut positions: Vec<usize> = (0..num_dancers).collect();
+    // Track what dancers have been renamed (swapped by name)
+    let mut renames: Vec<usize> = (0..num_dancers).collect();
     let mut offset = 0usize;  // The current first position
 
     for mv in moves
@@ -48,18 +51,18 @@ fn get_permutation(moves: &[Move], num_dancers: usize) -> Vec<usize>
                 positions.swap(dancer1, dancer2);
             },
             Partner(a, b) => {
-                let pos1 = positions[a as usize];
-                let pos2 = positions[b as usize];
-                dancers.swap(pos1, pos2);
-                positions.swap(a as usize, b as usize);
+                let pos1 = renames.iter().position(|&x| x == a as usize).unwrap();
+                let pos2 = renames.iter().position(|&x| x == b as usize).unwrap();
+                renames.swap(pos1, pos2);
             },
         }
         //println!("    ({:?}, {:?}) =>", dancers, offset);
     }
-    (&dancers[offset..num_dancers]).iter()
-                                   .chain(&dancers[0..offset])
-                                   .cloned()
-                                   .collect()
+    ((&dancers[offset..num_dancers]).iter()
+                                    .chain(&dancers[0..offset])
+                                    .cloned()
+                                    .collect(),
+     renames)
 }
 
 fn solve(input: &str, num_dancers: usize) -> String {
@@ -69,10 +72,10 @@ fn solve(input: &str, num_dancers: usize) -> String {
     let mut offset = 0usize;  // The current first position
     let moves = parse_moves(input);
 
-    let perm = get_permutation(&moves, num_dancers);
-    perm.iter()
-        .map(|off| (*off as u8 + b'a') as char)
-        .collect()
+    let (pos_perm, name_perm) = get_permutations(&moves, num_dancers);
+    pos_perm.iter()
+            .map(|off| (name_perm[*off] as u8 + b'a') as char)
+            .collect()
 }
 
 fn main() {
