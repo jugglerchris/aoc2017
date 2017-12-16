@@ -16,14 +16,21 @@ regex_parser!(parse_move: Move {
     PARTNER = r#"^p(.)/(.)$"# => | a: char, b: char | Partner(a as u8 - b'a', b as u8 - b'a')
 });
 
+fn parse_moves(input: &str) -> Vec<Move> {
+    input.trim()
+         .split(',')
+         .map(parse_move)
+         .collect()
+}
+
 fn solve(input: &str, num_dancers: usize) -> String {
     let mut dancers: Vec<usize> = (0..num_dancers).collect();
     // positions is a mapping from dancer to position in dancers
     let mut positions: Vec<usize> = (0..num_dancers).collect();
     let mut offset = 0usize;  // The current first position
-    for mv in input.trim()
-                   .split(',')
-                   .map(parse_move)
+    let moves = parse_moves(input);
+
+    for mv in moves
     {
         //println!("({:?}, {:?}) + {:?} =>", dancers, offset, mv);
         match mv {
