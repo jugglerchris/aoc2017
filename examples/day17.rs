@@ -13,6 +13,21 @@ fn solve(step_size: usize) -> usize {
     buffer[(pos+1)%buffer.len()]
 }
 
+fn solve2(step_size: usize) -> usize {
+    let mut pos = 0;
+    let mut buffer_len = 1;
+    let mut result = 0;
+    for i in 1..50_000_001 {
+        pos = (pos + step_size) % buffer_len;
+        if pos == 0 {
+            result = i;
+        }
+        pos += 1;  // the mod will happen next time
+        buffer_len += 1;
+    }
+    result
+}
+
 fn main() {
     let input = aoc2017::get_input(17).unwrap();
 
@@ -20,7 +35,5 @@ fn main() {
 
     println!("Answer: {:?}", solve(input.parse().unwrap()));
 
-//    assert_eq!(&solve2("s1,x3/4,pe/b", 5, 2), "ceadb");
-//
-//    println!("Answer: {:?}", solve2(&input, 16, 1000000000));
+    println!("Answer 2: {:?}", solve2(input.parse().unwrap()));
 }
