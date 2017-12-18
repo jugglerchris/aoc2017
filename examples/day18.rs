@@ -1,6 +1,7 @@
 #![feature(conservative_impl_trait)]
 #[macro_use] extern crate aoc2017;
 #[macro_use] extern crate lazy_static;
+use std::collections::vec_deque::VecDeque;
 
 use std::str::FromStr;
 
@@ -82,7 +83,7 @@ fn solve1(input: &str) -> isize {
 struct Thread<'a> {
     regs: Vec<isize>,
     pc: isize,
-    input: Option<isize>,
+    input: VecDeque<isize>,
     code: &'a [Insn],
 }
 
@@ -101,7 +102,7 @@ impl<'a> Thread<'a> {
             code: code,
             regs: regs,
             pc: 0,
-            input: None
+            input: VecDeque::new(),
         }
     }
 
@@ -113,8 +114,7 @@ impl<'a> Thread<'a> {
     }
 
     pub fn send(&mut self, val: isize) {
-        assert!(self.input.is_none());
-        self.input = Some(val);
+        self.input.push_back(val);
     }
     pub fn run_to_io(&mut self) -> IO {
         loop {
@@ -130,7 +130,7 @@ impl<'a> Thread<'a> {
                 Mul(Reg(r), op) => { self.regs[r] *= self.get_val(op) },
                 Mod(Reg(r), op) => { self.regs[r] %= self.get_val(op) },
                 Rcv(Reg(r)) => {
-                    match self.input.take() {
+                    match self.input.pop_front() {
                         None => {
                             // Don't adjust PC - we want to rerun.
                             return Read;
