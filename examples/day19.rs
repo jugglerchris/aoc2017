@@ -9,7 +9,7 @@ fn parse_map(input: &str) -> Vec<Vec<u8>> {
          .collect()
 }
 
-fn solve1(input: &str) -> String {
+fn solve1(input: &str) -> (String, usize) {
     let map = parse_map(input);
     let width = map[0].len() as isize;
     let height = map.len() as isize;
@@ -19,11 +19,13 @@ fn solve1(input: &str) -> String {
     let mut dx = 0isize;
     let mut dy = 1isize;
     let mut letters = String::new();
+    let mut steps = 0;
     loop {
         x += dx;
         y += dy;
+        steps += 1;
         if x < 0 || y < 0 || x >= width || y >= width {
-            return letters;
+            return (letters, steps);
         }
         //print!("pos=({},{}) dir=({},{})  ", x, y, dx, dy);
         let c = map[y as usize][x as usize];
@@ -52,7 +54,7 @@ fn solve1(input: &str) -> String {
                           }
                       }
                     },
-            b' ' => { return letters; },
+            b' ' => { return (letters, steps); },
             _ => panic!("Got to character [{}]", c),
         }
     }
@@ -67,7 +69,7 @@ fn main() {
 F---|----E|--+ 
     |  |  |  D 
     +B-+  +--+ 
-"#), "ABCDEF");
+"#), (String::from("ABCDEF"), 38));
 
-    println!("Answer 1: {:?}", solve1(&input));
+    println!("Answer 1,2: {:?}", solve1(&input));
 }
