@@ -3,8 +3,9 @@
 #[macro_use] extern crate lazy_static;
 
 use std::ops::{Add,AddAssign};
+use std::collections::HashMap;
 
-#[derive(Copy,Clone,Eq,PartialEq,Debug)]
+#[derive(Copy,Clone,Eq,PartialEq,Debug,Hash)]
 struct MyVec(isize, isize, isize);
 
 impl MyVec {
@@ -38,6 +39,13 @@ struct Particle {
     a: MyVec,
 }
 
+impl Particle {
+    fn update(&mut self) {
+        self.v += self.a;
+        self.p += self.v;
+    }
+}
+
 regex_parser!(parse_particle: Particle {
     LINE = r#"^p=<(-?\d+),(-?\d+),(-?\d+)>, v=<(-?\d+),(-?\d+),(-?\d+)>, a=<(-?\d+),(-?\d+),(-?\d+)>$"# =>
         | px: isize, py: isize, pz: isize,
@@ -63,6 +71,34 @@ fn solve(input: &str) -> (usize, Particle) {
     (idx, *smallest)
 }
 
+fn solve2(input: &str) -> usize {
+    let mut particles = input
+            .lines()
+            .map(parse_particle)
+            .collect::<Vec<Particle>>();
+
+    let mut round = 0usize;
+    loop {
+        let mut positions: HashMap<MyVec, usize> = HashMap::new();
+        for pcle in &mut particles {
+            pcle.update();
+            *positions.entry(pcle.p).or_insert(0) += 1;
+        }
+
+        let new_particles = particles.drain(0..)
+                                     .filter(|pcle| *positions.get(&pcle.p).unwrap() == 1)
+                                     .collect();
+        particles = new_particles;
+        println!("Round {}: {} particles left", round, particles.len());
+        round += 1;
+        // This is a terrible exit condition, which happens to have worked.
+        if round > 100 {
+            break;
+        }
+    }
+    particles.len()
+}
+
 fn main() {
     let input = aoc2017::get_input(20).unwrap();
 
@@ -75,4 +111,11 @@ p=<4,0,0>, v=<0,0,0>, a=<-2,0,0>"#),
             }));
 
     println!("Answer 1: {:?}", solve(&input));
+
+    assert_eq!(solve2(r#"p=<-6,0,0>, v=<3,0,0>, a=<0,0,0>
+p=<-4,0,0>, v=<2,0,0>, a=<0,0,0>
+p=<-2,0,0>, v=<1,0,0>, a=<0,0,0>
+p=<3,0,0>, v=<-1,0,0>, a=<0,0,0>"#), 1);
+
+    println!("Answer 2: {:?}", solve2(&input));
 }
