@@ -88,7 +88,7 @@ impl Default for Grid {
 
 impl Grid {
     fn step(&mut self, rules2: &RuleMap, rules3: &RuleMap) {
-        println!("step(size={}) data={}", self.size, self.data.len());
+        //println!("step(size={}) data={}", self.size, self.data.len());
         let (step_size, rules) =  if (self.size % 2) == 0 {
             (2, rules2)
         } else {
@@ -106,12 +106,12 @@ impl Grid {
                 let mut key = Vec::new();
                 for i in 0..step_size {
                     let start = (y + i)*self.size + x;
-                    println!("size={} y={} x={} step_size={} i={}", self.size, y, x, step_size, i);
+                    //println!("size={} y={} x={} step_size={} i={}", self.size, y, x, step_size, i);
                     key.extend(&self.data[start..start+step_size]);
                 }
-                println!("key={:?}", key);
+                //println!("key={:?}", key);
                 let new_square = rules.get(&key).unwrap().clone();
-                println!("   -> {:?}", new_square);
+                //println!("   -> {:?}", new_square);
                 new_squares.push(new_square);
             }
 
@@ -145,53 +145,53 @@ fn solve1(input: &str, iterations: usize) -> usize {
                      .map(parse_rule)
                      .collect::<Vec<Rule>>() {
         if rule.pat.len() == 4 {
-            print_grid(&rule.pat, 2);
-            println!("  =>  ");
-            print_grid(&rule.output, 3);
+            //print_grid(&rule.pat, 2);
+            //println!("  =>  ");
+            //print_grid(&rule.output, 3);
             let mut pat = rule.pat;
             let mut output = rule.output;
-            println!("pat={:?}", pat);
-            print_grid(&pat, 2);
+            //println!("pat={:?}", pat);
+            //print_grid(&pat, 2);
             rules2.insert(pat.clone(), output.clone());
             for _ in 0..3 {
                 pat = rotate2(&pat);
-            println!("pat={:?}", pat);
-            print_grid(&pat, 2);
+            //println!("pat={:?}", pat);
+            //print_grid(&pat, 2);
                 rules2.insert(pat.clone(), output.clone());
             }
             pat = flip2(&pat);
-            println!("pat={:?}", pat);
-            print_grid(&pat, 2);
+            //println!("pat={:?}", pat);
+            //print_grid(&pat, 2);
             rules2.insert(pat.clone(), output.clone());
             for _ in 0..3 {
                 pat = rotate2(&pat);
-            println!("pat={:?}", pat);
-            print_grid(&pat, 2);
+            //println!("pat={:?}", pat);
+            //print_grid(&pat, 2);
                 rules2.insert(pat.clone(), output.clone());
             }
         } else if rule.pat.len() == 9 {
-            print_grid(&rule.pat, 3);
-            println!("  =>  ");
-            print_grid(&rule.output, 4);
+            //print_grid(&rule.pat, 3);
+            //println!("  =>  ");
+            //print_grid(&rule.output, 4);
             let mut pat = rule.pat;
             let mut output = rule.output;
-            println!("pat={:?}", pat);
-            print_grid(&pat, 3);
+            //println!("pat={:?}", pat);
+            //print_grid(&pat, 3);
             rules3.insert(pat.clone(), output.clone());
             for _ in 0..3 {
                 pat = rotate3(&pat);
-            println!("pat={:?}", pat);
-            print_grid(&pat, 3);
+            //println!("pat={:?}", pat);
+            //print_grid(&pat, 3);
                 rules3.insert(pat.clone(), output.clone());
             }
             pat = flip3(&pat);
-            println!("pat={:?}", pat);
-            print_grid(&pat, 3);
+            //println!("pat={:?}", pat);
+            //print_grid(&pat, 3);
             rules3.insert(pat.clone(), output.clone());
             for _ in 0..3 {
                 pat = rotate3(&pat);
-            println!("pat={:?}", pat);
-            print_grid(&pat, 3);
+            //println!("pat={:?}", pat);
+            //print_grid(&pat, 3);
                 rules3.insert(pat.clone(), output.clone());
             }
         } else {
@@ -201,11 +201,11 @@ fn solve1(input: &str, iterations: usize) -> usize {
 
     let mut grid = Grid::default();
     for _ in 0..iterations {
-        println!("Current grid:");
-        grid.print();
+        //println!("Current grid:");
+        //grid.print();
         grid.step(&rules2, &rules3);
     }
-    grid.print();
+    //grid.print();
     grid.count_full()
 }
 
@@ -216,4 +216,5 @@ fn main() {
 .#./..#/### => #..#/..../..../#..#"#, 2), 12);
 
     println!("Answer 1: {:?}", solve1(&input, 5));
+    println!("Answer 2: {:?}", solve1(&input, 18));
 }
