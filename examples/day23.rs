@@ -35,8 +35,44 @@ fn solve1(input: &str) -> usize {
     multiplies
 }
 
+fn solve2(input: &str) -> isize {
+    let code = input.lines()
+                    .map(parse_insn)
+                    .collect::<Vec<_>>();
+    let mut regs: Vec<isize> = vec![0isize; 26];
+    let h = (b'h' - b'a') as usize;
+    regs[0] = 1;
+    let mut pc = 0isize;
+
+    fn get_val(regs: &[isize], op: Operand) -> isize{
+        match op {
+            Reg(r) => regs[r],
+            Val(v) => v,
+        }
+    };
+
+    loop {
+        let mut new_pc = pc + 1;
+        if pc < 0 || (pc as usize) >= code.len() {
+            break;
+        }
+        match code[pc as usize] {
+            Set(Reg(r), op) => { regs[r] = get_val(&regs, op) },
+            Sub(Reg(r), op) => { regs[r] -= get_val(&regs, op) },
+            Mul(Reg(r), op) => { regs[r] *= get_val(&regs, op) },
+            Mod(Reg(r), op) => { regs[r] %= get_val(&regs, op) },
+            Jnz(op1, op2) => { if get_val(&regs, op1) != 0 { new_pc = pc + get_val(&regs, op2); }; },
+            _ => panic!(),
+        }
+        pc = new_pc;
+    }
+    regs[h]
+}
+
 fn main() {
     let input = aoc2017::get_input(23).unwrap();
 
     println!("Answer 1: {:?}", solve1(&input));
+    let input = aoc2017::get_input_str("23o").unwrap();
+    println!("Answer 2: {:?}", solve2(&input));
 }

@@ -33,12 +33,16 @@ macro_rules! regex_parser {
         }
 }
 
-pub fn get_input(n: u32) -> io::Result<String> {
-    let filename = format!("data/{}.txt", n);
+pub fn get_input_str(s: &str) -> io::Result<String> {
+    let filename = format!("data/{}.txt", s);
     let mut f = try!(File::open(&filename));
     let mut data = String::new();
     f.read_to_string(&mut data)?;
     Ok(data)
+}
+
+pub fn get_input(n: u32) -> io::Result<String> {
+    get_input_str(&format!("{}", n))
 }
 
 pub fn parse_rows<T:FromStr+Debug>(data: &str) -> Vec<Vec<T>>
