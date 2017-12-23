@@ -174,11 +174,12 @@ pub mod cpu {
         Snd(Operand),
         Set(Operand, Operand),
         Add(Operand, Operand),
+        Sub(Operand, Operand),
         Mul(Operand, Operand),
         Mod(Operand, Operand),
         Rcv(Operand),
         Jgz(Operand, Operand),
-
+        Jnz(Operand, Operand),
     }
     pub use self::Insn::*;
 
@@ -186,10 +187,12 @@ pub mod cpu {
         SND = r#"snd (.*)$"# => | op: Operand | Snd(op),
         SET = r#"set (.*) (.*)$"# => | op1: Operand, op2: Operand | Set(op1, op2),
         ADD = r#"add (.*) (.*)$"# => | op1: Operand, op2: Operand | Add(op1, op2),
+        SUB = r#"sub (.*) (.*)$"# => | op1: Operand, op2: Operand | Sub(op1, op2),
         MUL = r#"mul (.*) (.*)$"# => | op1: Operand, op2: Operand | Mul(op1, op2),
         MOD = r#"mod (.*) (.*)$"# => | op1: Operand, op2: Operand | Mod(op1, op2),
         RCV = r#"rcv (.*)$"# => | op: Operand | Rcv(op),
-        JGZ = r#"jgz (.*) (.*)$"# => | op1: Operand, op2: Operand | Jgz(op1, op2)
+        JGZ = r#"jgz (.*) (.*)$"# => | op1: Operand, op2: Operand | Jgz(op1, op2),
+        JNZ = r#"jnz (.*) (.*)$"# => | op1: Operand, op2: Operand | Jnz(op1, op2)
     });
 }
 
