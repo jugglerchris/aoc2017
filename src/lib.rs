@@ -15,10 +15,10 @@ macro_rules! regex_parser {
         {
             lazy_static! {
                 $(
-                static ref $re_name: $crate::Regex = $crate::Regex::new($re).unwrap();
+                pub static ref $re_name: $crate::Regex = $crate::Regex::new($re).unwrap();
                  )*
             }
-            fn $fname(s: &str) -> $typ {
+            pub fn $fname(s: &str) -> $typ {
                 $(
                     if let Some(cap) = $re_name.captures(s) {
                         return {
@@ -137,13 +137,60 @@ impl Hasher {
             for j in 0..16 {
                 b ^= self.cur_positions[i*16 + j];
             }
-            for bit in 0..8 {
+            for _ in 0..8 {
                 result.push((b & 0x80) != 0);
                 b = b << 1;
             }
         }
         result
     }
+}
+
+pub mod cpu {
+    use std::str::FromStr;
+
+    #[derive(Debug,Clone,Eq,PartialEq,Copy)]
+    pub enum Operand {
+        Reg(usize),
+        Val(isize),
+    }
+    pub use self::Operand::*;
+
+    regex_parser!(parse_operand: Operand {
+        VAL = r#"^(-?\d+)$"# => | val: isize | Operand::Val(val),
+        REG = r#"^(\w)$"# => | reg: String | Operand::Reg((reg.chars().next().unwrap() as u8 - b'a') as usize)
+    });
+
+    impl FromStr for Operand {
+        type Err = ();
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            Ok(parse_operand(s))
+        }
+    }
+
+
+    #[derive(Debug,Clone,Eq,PartialEq)]
+    pub enum Insn {
+        Snd(Operand),
+        Set(Operand, Operand),
+        Add(Operand, Operand),
+        Mul(Operand, Operand),
+        Mod(Operand, Operand),
+        Rcv(Operand),
+        Jgz(Operand, Operand),
+
+    }
+    pub use self::Insn::*;
+
+    regex_parser!(parse_insn: Insn {
+        SND = r#"snd (.*)$"# => | op: Operand | Snd(op),
+        SET = r#"set (.*) (.*)$"# => | op1: Operand, op2: Operand | Set(op1, op2),
+        ADD = r#"add (.*) (.*)$"# => | op1: Operand, op2: Operand | Add(op1, op2),
+        MUL = r#"mul (.*) (.*)$"# => | op1: Operand, op2: Operand | Mul(op1, op2),
+        MOD = r#"mod (.*) (.*)$"# => | op1: Operand, op2: Operand | Mod(op1, op2),
+        RCV = r#"rcv (.*)$"# => | op: Operand | Rcv(op),
+        JGZ = r#"jgz (.*) (.*)$"# => | op1: Operand, op2: Operand | Jgz(op1, op2)
+    });
 }
 
 #[cfg(test)]
