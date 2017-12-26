@@ -22,7 +22,7 @@ fn parse_piece(s: &str) -> Piece {
     }
 }
 
-fn solve1(input: &str) -> usize {
+fn solve(input: &str) -> (usize, usize) {
     let pieces = input.lines()
                       .map(parse_piece)
                       .collect::<Vec<Piece>>();
@@ -39,10 +39,13 @@ fn solve1(input: &str) -> usize {
         piece_by_pins[piece.port2].push(piece);
     }
     let mut max_strength = 0;
+    let mut max_strength_longest = 0;
+    let mut longest = 0;
     let mut choices = Vec::new();
     let mut pin_stack = Vec::new();
     let mut piece_stack: Vec<&Piece> = Vec::new();
     let mut strength = 0;
+    let mut length = 0;
     pin_stack.push(0);  // need to start with 0 pins
     choices.push(0);  // Next option with 0 pins
     while !pin_stack.is_empty() {
@@ -56,6 +59,7 @@ fn solve1(input: &str) -> usize {
                 let piece = piece_stack.pop().unwrap();
                 assert!(piece.used.get(), true);
                 piece.used.set(false);
+                length -= 1;
                 strength -= piece.port1 + piece.port2;
             }
         } else {
@@ -71,23 +75,31 @@ fn solve1(input: &str) -> usize {
                 if strength > max_strength {
                     max_strength = strength;
                 }
+
+                length += 1;
+                if length > longest {
+                    longest = length;
+                    max_strength_longest = strength;
+                } else if (length == longest) && (strength > max_strength_longest) {
+                    max_strength_longest = strength;
+                }
             }
         }
     }
 
-    max_strength
+    (max_strength, max_strength_longest)
 }
 
 fn main() {
     let input = aoc2017::get_input(24).unwrap();
 
-    assert_eq!(solve1("0/2
+    assert_eq!(solve("0/2
 2/2
 2/3
 3/4
 3/5
 0/1
 10/1
-9/10"), 31);
-    println!("Answer 1: {:?}", solve1(&input));
+9/10"), (31,19));
+    println!("Answer 1,2: {:?}", solve(&input));
 }
